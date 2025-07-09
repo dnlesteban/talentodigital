@@ -1,0 +1,34 @@
+
+Problema con `kde=True` en `sns.histplot` con `hue`
+
+Cuando se usa:
+
+sns.histplot(data=df, x='Horas_de_estudio', hue='Genre', kde=True, bins=20, multiple='stack')
+
+¿Qué pasa?
+
+* `kde=True` le dice a seaborn que además de mostrar el histograma, trace una curva kde (Kernel Density Estimation o estimación de densidad), pero cuando usas `hue` (para dividir por categorías) y `multiple='stack'`, el gráfico intenta apilar los histogramas por categoría. En esa situación, la curva KDE no se puede calcular para cada grupo apilado fácilmente, porque `sns.histplot` no soporta bien la combinación `kde=True` + `multiple='stack'` + `hue`.
+
+Resultado
+- En muchos casos no se muestra la curva KDE o genera warnings.
+- Puede dar lugar a errores o comportamiento inesperado.
+
+Recomendación para evitar problemas con kde + hue
+
+Opción 1: Separar histograma y kdeplot
+	Haz primero el histograma apilado sin kde:
+	Luego, si quieres la KDE, haz un gráfico aparte con `sns.kdeplot`:
+
+Opción 2: No usar `multiple='stack'` si quieres kde
+	Esto mostrará las barras superpuestas (no apiladas), con la curva KDE para cada categoría.
+
+Resumen
+
+| Situación                               | ¿Funciona bien? | Comentario                     |
+| --------------------------------------- | --------------- | ------------------------------ |
+| `hue` + `multiple='stack'` + `kde=True` | No              | No soportado, genera problemas |
+| `hue` + `multiple='stack'`              | Sí              | Histograma apilado correcto    |
+| `hue` + `kde=True` (sin apilar)         | Sí              | KDE y barras superpuestas      |
+| Separar histograma y kdeplot            | Sí              | Más control y claridad         |
+
+
